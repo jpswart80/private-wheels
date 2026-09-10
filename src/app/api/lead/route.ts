@@ -90,6 +90,7 @@ async function forwardToWebhook(lead: Lead) {
  *
  *   RESEND_API_KEY   an API key from the Resend dashboard
  *   LEAD_EMAIL_TO    where leads should land (comma-separated for several)
+ *   LEAD_EMAIL_CC    optional; also copy these addresses (comma-separated)
  *   LEAD_EMAIL_FROM  optional sender; defaults to Resend's shared test address,
  *                    which works immediately. For production use an address on
  *                    a domain you've verified in Resend
@@ -99,6 +100,8 @@ async function emailLead(lead: Lead) {
   const apiKey = process.env.RESEND_API_KEY;
   const to = process.env.LEAD_EMAIL_TO;
   if (!apiKey || !to) return;
+
+  const cc = process.env.LEAD_EMAIL_CC;
 
   const from =
     process.env.LEAD_EMAIL_FROM ?? "Private Wheels <onboarding@resend.dev>";
@@ -113,6 +116,7 @@ async function emailLead(lead: Lead) {
       body: JSON.stringify({
         from,
         to: to.split(",").map((addr) => addr.trim()),
+        ...(cc ? { cc: cc.split(",").map((addr) => addr.trim()) } : {}),
         subject: `New Private Wheels lead — ${lead.name}`,
         text: [
           "New lead from the coming-soon page.",
