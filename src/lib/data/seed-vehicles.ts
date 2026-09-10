@@ -20,6 +20,25 @@ interface VehicleTemplate {
   price: number;
   year: number;
   mileage: number;
+  /**
+   * Optional rich detail. When a listing carries real specs (rather than the
+   * generated filler) these win over the derived values in the builder below.
+   */
+  originalPrice?: number;
+  province?: Province;
+  town?: string;
+  condition?: Condition;
+  previousOwners?: number;
+  serviceHistory?: ServiceHistory;
+  accidentHistory?: AccidentHistory;
+  colour?: string;
+  features?: string[];
+  description?: string;
+  /** Photo paths under `public/` (real listing photos rather than the placeholder). */
+  images?: string[];
+  /** Days before "now" the listing went live — controls "Just added" ordering. */
+  listedDaysAgo?: number;
+  featured?: boolean;
 }
 
 const TEMPLATES: VehicleTemplate[] = [
@@ -65,6 +84,50 @@ const TEMPLATES: VehicleTemplate[] = [
   { make: "Suzuki", model: "SX4", variant: "2.0 GLX", bodyType: "Hatchback", fuelType: "Petrol", transmission: "Manual", price: 139000, year: 2010, mileage: 141000 },
   { make: "Ford", model: "Ranger", variant: "2.2 TDCi XL 4x4 Double-Cab", bodyType: "Bakkie", fuelType: "Diesel", transmission: "Manual", price: 299900, year: 2017, mileage: 154000 },
   { make: "Kia", model: "Rio", variant: "1.4 LX 5-dr Auto", bodyType: "Hatchback", fuelType: "Petrol", transmission: "Automatic", price: 169950, year: 2018, mileage: 96000 },
+  {
+    make: "BMW",
+    model: "X1",
+    variant: "sDrive18d M Sport",
+    bodyType: "SUV",
+    fuelType: "Diesel",
+    transmission: "Automatic",
+    price: 804800,
+    year: 2025,
+    mileage: 21800,
+    province: "KwaZulu-Natal",
+    town: "Umhlanga",
+    condition: "Used",
+    previousOwners: 1,
+    serviceHistory: "Full Service History (Agents)",
+    accidentHistory: "No Accident History",
+    colour: "Alpine White",
+    images: [
+      "/listings/bmw-x1-sdrive18d/01.jpg",
+      "/listings/bmw-x1-sdrive18d/02.jpg",
+      "/listings/bmw-x1-sdrive18d/03.jpg",
+      "/listings/bmw-x1-sdrive18d/04.jpg",
+      "/listings/bmw-x1-sdrive18d/05.jpg",
+      "/listings/bmw-x1-sdrive18d/06.jpg",
+    ],
+    listedDaysAgo: 0,
+    featured: true,
+    features: [
+      "M Sport Package",
+      "Sensatec Leather Upholstery",
+      "Navigation System",
+      "Reverse Camera",
+      "Park Distance Control (Front & Rear)",
+      "Adaptive Cruise Control",
+      "Apple CarPlay & Android Auto",
+      '18" M Light-Alloy Wheels',
+      "Dual-Zone Climate Control",
+      "LED Headlights",
+      "Keyless Start",
+      "Electric Tailgate",
+    ],
+    description:
+      "2025 BMW X1 sDrive18d M Sport in Alpine White with the full M Sport package. One owner from new with a complete BMW franchise service history and the balance of the BMW Motorplan (roughly 47 months / 78 200 km remaining). The 2.0-litre turbodiesel puts out 110 kW and 360 Nm and still returns a genuine 5.0 l/100km on the open road. Meticulously maintained, never been in an accident, and still under factory warranty. Selling privately in Umhlanga — no dealer mark-up, no admin fees.",
+  },
 ];
 
 const SELLERS = [
@@ -128,13 +191,18 @@ function daysAgoISO(days: number): string {
 }
 
 export const VEHICLES: Vehicle[] = TEMPLATES.map((t, i) => {
-  const province = pick(PROVINCES, i * 3 + 1);
+  const province = t.province ?? pick(PROVINCES, i * 3 + 1);
   const towns = TOWNS_BY_PROVINCE[province];
+  const town = t.town ?? pick(towns, i);
   const seller = pick(SELLERS, i);
-  const condition: Condition = t.mileage < 6000 ? "New" : i % 11 === 0 ? "Demo" : "Used";
-  const serviceHistory: ServiceHistory = pick(SERVICE_HISTORY_OPTIONS, i * 2);
+  const condition: Condition =
+    t.condition ?? (t.mileage < 6000 ? "New" : i % 11 === 0 ? "Demo" : "Used");
+  const serviceHistory: ServiceHistory = t.serviceHistory ?? pick(SERVICE_HISTORY_OPTIONS, i * 2);
   // ~1 in 4 listings have had a price drop.
   const hasPriceDrop = i % 4 === 1;
+  const originalPrice =
+    t.originalPrice ??
+    (hasPriceDrop ? Math.round((t.price * (1.08 + (i % 3) * 0.04)) / 500) * 500 : undefined);
 
   return {
     id: `v-${i + 1}`,
@@ -143,29 +211,29 @@ export const VEHICLES: Vehicle[] = TEMPLATES.map((t, i) => {
     variant: t.variant,
     year: t.year,
     price: t.price,
-    ...(hasPriceDrop
-      ? { originalPrice: Math.round((t.price * (1.08 + (i % 3) * 0.04)) / 500) * 500 }
-      : {}),
+    ...(originalPrice ? { originalPrice } : {}),
     mileage: t.mileage,
     transmission: t.transmission,
     fuelType: t.fuelType,
     bodyType: t.bodyType,
     province,
-    town: pick(towns, i),
+    town,
     condition,
-    previousOwners: condition === "New" ? 0 : 1 + (i % 3),
+    previousOwners: t.previousOwners ?? (condition === "New" ? 0 : 1 + (i % 3)),
     serviceHistory,
-    accidentHistory: pick(ACCIDENT_CYCLE, i),
-    colour: pick(COLOURS, i * 5 + 2),
-    features: buildFeatures(i),
-    description: `${t.year} ${t.make} ${t.model} ${t.variant} in ${condition.toLowerCase()} condition. ${serviceHistory}. Well looked after and ready for its next owner in ${pick(towns, i)}, ${province}.`,
-    images: [],
-    featured: i % 5 === 0,
+    accidentHistory: t.accidentHistory ?? pick(ACCIDENT_CYCLE, i),
+    colour: t.colour ?? pick(COLOURS, i * 5 + 2),
+    features: t.features ?? buildFeatures(i),
+    description:
+      t.description ??
+      `${t.year} ${t.make} ${t.model} ${t.variant} in ${condition.toLowerCase()} condition. ${serviceHistory}. Well looked after and ready for its next owner in ${town}, ${province}.`,
+    images: t.images ?? [],
+    featured: t.featured ?? i % 5 === 0,
     status: "active",
     sellerId: seller.id,
     sellerName: seller.name,
     phone: seller.phone,
-    createdAt: daysAgoISO(i * 2 + 1),
+    createdAt: daysAgoISO(t.listedDaysAgo ?? i * 2 + 1),
   };
 });
 

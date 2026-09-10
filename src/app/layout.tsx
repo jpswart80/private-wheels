@@ -17,6 +17,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000",
+  ),
   title: "Private Wheels | Buy & Sell Cars in South Africa",
   description:
     "South Africa's trusted private vehicle marketplace. Browse thousands of listings, sell your car with confidence, and calculate finance in seconds.",

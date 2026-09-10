@@ -15,7 +15,9 @@ import { useListing, useListings } from "@/hooks/use-listings";
 import type { Vehicle } from "@/lib/types";
 import { formatCurrency, formatMileage } from "@/lib/format";
 import { VehiclePlaceholder } from "@/components/vehicle-placeholder";
+import { VehicleMedia } from "@/components/vehicle-media";
 import { VehicleCard } from "@/components/vehicle-card";
+import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Label } from "@/components/ui/label";
@@ -48,6 +50,7 @@ export function VehicleDetailClient({ id }: { id: string }) {
   const { listing } = useListing(id);
   const { listings } = useListings();
   const [numberRevealed, setNumberRevealed] = useState(false);
+  const [activeImage, setActiveImage] = useState(0);
 
   if (!listing) {
     return (
@@ -92,7 +95,16 @@ export function VehicleDetailClient({ id }: { id: string }) {
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1fr_360px]">
           <div>
             <div className="relative aspect-[16/10] overflow-hidden rounded-2xl">
-              <VehiclePlaceholder seed={listing.id} />
+              {listing.images.length > 0 ? (
+                <VehicleMedia
+                  vehicle={listing}
+                  index={activeImage}
+                  sizes="(min-width: 1024px) 900px, 100vw"
+                  priority
+                />
+              ) : (
+                <VehiclePlaceholder seed={listing.id} />
+              )}
               {listing.featured && (
                 <span className="shadow-pill absolute top-3 left-3 rounded-full bg-card px-3 py-1.5 text-xs font-semibold">
                   Featured
@@ -100,10 +112,29 @@ export function VehicleDetailClient({ id }: { id: string }) {
               )}
             </div>
             <div className="mt-3 grid grid-cols-5 gap-2">
-              {Array.from({ length: 5 }).map((_, i) => (
-                <div key={i} className="aspect-[4/3] overflow-hidden rounded-lg">
-                  <VehiclePlaceholder seed={`${listing.id}-${i}`} compact />
-                </div>
+              {(listing.images.length > 0
+                ? listing.images.map((_, i) => i)
+                : Array.from({ length: 5 }, (_, i) => i)
+              ).map((i) => (
+                <button
+                  key={i}
+                  type="button"
+                  onClick={() => setActiveImage(i)}
+                  aria-label={`View photo ${i + 1}`}
+                  aria-current={listing.images.length > 0 && i === activeImage}
+                  className={cn(
+                    "relative aspect-[4/3] overflow-hidden rounded-lg",
+                    listing.images.length > 0 &&
+                      i === activeImage &&
+                      "ring-2 ring-foreground ring-offset-2",
+                  )}
+                >
+                  {listing.images.length > 0 ? (
+                    <VehicleMedia vehicle={listing} index={i} sizes="120px" compact />
+                  ) : (
+                    <VehiclePlaceholder seed={`${listing.id}-${i}`} compact />
+                  )}
+                </button>
               ))}
             </div>
 

@@ -2,11 +2,12 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Camera, Heart, MapPin } from "lucide-react";
+import { Camera, Check, MapPin, Share2 } from "lucide-react";
+import { toast } from "sonner";
 import type { Vehicle } from "@/lib/types";
 import type { PriceRating } from "@/lib/filter";
 import { formatCurrency, formatMileage } from "@/lib/format";
-import { VehiclePlaceholder } from "@/components/vehicle-placeholder";
+import { VehicleMedia } from "@/components/vehicle-media";
 import { cn } from "@/lib/utils";
 
 const THUMB_COUNT = 6;
@@ -27,7 +28,20 @@ export function VehicleListCard({
   vehicle: Vehicle;
   priceRating?: PriceRating;
 }) {
-  const [saved, setSaved] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  async function handleShare(e: React.MouseEvent) {
+    e.preventDefault();
+    const url = `${window.location.origin}/cars/${vehicle.id}`;
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopied(true);
+      toast.success("Listing link copied — paste it anywhere to share.");
+      window.setTimeout(() => setCopied(false), 2000);
+    } catch {
+      toast.error("Couldn't copy the link. Try again.");
+    }
+  }
 
   const specs = [
     vehicle.condition,
@@ -35,6 +49,8 @@ export function VehicleListCard({
     vehicle.transmission,
     vehicle.fuelType,
   ];
+
+  const photoCount = vehicle.images.length || THUMB_COUNT;
 
   return (
     <Link
@@ -44,7 +60,10 @@ export function VehicleListCard({
       <div className="grid sm:grid-cols-[minmax(0,380px)_1fr] lg:grid-cols-[minmax(0,440px)_1fr]">
         {/* Media */}
         <div className="relative aspect-[16/11] overflow-hidden sm:aspect-auto">
-          <VehiclePlaceholder seed={vehicle.id} />
+          <VehicleMedia
+            vehicle={vehicle}
+            sizes="(min-width: 1024px) 440px, (min-width: 640px) 380px, 100vw"
+          />
 
           {vehicle.featured && (
             <span className="shadow-pill absolute top-3 left-3 rounded-full bg-card px-3 py-1 text-xs font-semibold">
@@ -54,26 +73,20 @@ export function VehicleListCard({
 
           <span className="absolute bottom-3 left-3 flex items-center gap-1 rounded-full bg-black/55 px-2.5 py-1 text-xs font-medium text-white">
             <Camera className="h-3.5 w-3.5" />
-            {THUMB_COUNT}
+            {photoCount}
           </span>
 
           <button
             type="button"
-            aria-label={saved ? "Remove from saved" : "Save vehicle"}
-            aria-pressed={saved}
-            onClick={(e) => {
-              e.preventDefault();
-              setSaved((s) => !s);
-            }}
+            aria-label="Copy link to this listing"
+            onClick={handleShare}
             className="shadow-pill absolute top-3 right-3 flex h-9 w-9 items-center justify-center rounded-full bg-card/90 transition-colors hover:bg-card"
           >
-            <Heart
-              className={cn(
-                "h-4 w-4 transition-colors",
-                saved ? "fill-primary text-primary" : "text-foreground",
-              )}
-              strokeWidth={2}
-            />
+            {copied ? (
+              <Check className="h-4 w-4 text-primary" strokeWidth={2} />
+            ) : (
+              <Share2 className="h-4 w-4 text-foreground" strokeWidth={2} />
+            )}
           </button>
         </div>
 
@@ -128,8 +141,13 @@ export function VehicleListCard({
       {/* Thumbnail strip */}
       <div className="hidden grid-cols-6 gap-2 border-t p-3 sm:grid">
         {Array.from({ length: THUMB_COUNT }).map((_, i) => (
-          <div key={i} className="aspect-[4/3] overflow-hidden rounded-md">
-            <VehiclePlaceholder seed={`${vehicle.id}-${i}`} compact />
+          <div key={i} className="relative aspect-[4/3] overflow-hidden rounded-md">
+            <VehicleMedia
+              vehicle={vehicle}
+              index={i}
+              sizes="120px"
+              compact
+            />
           </div>
         ))}
       </div>

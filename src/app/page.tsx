@@ -5,7 +5,7 @@ import { VehicleCard } from "@/components/vehicle-card";
 import { ScrollRow } from "@/components/scroll-row";
 import { BudgetMatcher } from "@/components/budget-matcher";
 import { SiteContainer } from "@/components/site-container";
-import { VEHICLES, getFeaturedVehicles, getLatestVehicles } from "@/lib/data/seed-vehicles";
+import { VEHICLES, getLatestVehicles } from "@/lib/data/seed-vehicles";
 import { formatCurrency } from "@/lib/format";
 import { BODY_TYPES } from "@/lib/data/constants";
 
@@ -28,7 +28,6 @@ const TRUST = [
 ];
 
 export default function HomePage() {
-  const featured = getFeaturedVehicles(10);
   const latest = getLatestVehicles(10);
 
   const totalValue = VEHICLES.reduce((sum, v) => sum + v.price, 0);
@@ -89,29 +88,8 @@ export default function HomePage() {
         </SiteContainer>
       </section>
 
-      {/* Featured */}
-      <section className="border-y bg-muted/40 py-6">
-        <SiteContainer>
-          <ScrollRow
-            title="Featured this week"
-            action={{ href: "/cars?sort=newest", label: "See more" }}
-          >
-            {featured.map((v) => (
-              <VehicleCard key={v.id} vehicle={v} className="w-[260px] shrink-0" />
-            ))}
-          </ScrollRow>
-        </SiteContainer>
-      </section>
-
-      {/* Budget matcher */}
-      <section className="py-14">
-        <SiteContainer>
-          <BudgetMatcher />
-        </SiteContainer>
-      </section>
-
       {/* Just added */}
-      <section className="border-y bg-muted/40 py-6">
+      <section className="border-b py-6">
         <SiteContainer>
           <ScrollRow
             title="Just added"
@@ -121,6 +99,32 @@ export default function HomePage() {
               <VehicleCard key={v.id} vehicle={v} className="w-[260px] shrink-0" />
             ))}
           </ScrollRow>
+        </SiteContainer>
+      </section>
+
+      {/* Why private */}
+      <section className="border-b bg-muted/40 py-16">
+        <SiteContainer>
+          <h2 className="text-2xl font-semibold tracking-tight">Why buy privately?</h2>
+          <p className="mt-2 max-w-lg text-sm leading-[1.5] text-muted-foreground">
+            A private sale can save you tens of thousands — if you can trust the seller and
+            the price. That&apos;s the part we fixed.
+          </p>
+          <div className="mt-10 grid gap-8 sm:grid-cols-3">
+            {TRUST.map((t) => (
+              <div key={t.title} className="flex flex-col gap-3">
+                <t.icon className="h-6 w-6" strokeWidth={1.5} />
+                <h3 className="text-sm font-semibold">{t.title}</h3>
+                <p className="text-sm leading-[1.5] text-muted-foreground">{t.body}</p>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-10 flex flex-wrap gap-x-10 gap-y-4 border-t pt-8">
+            <Stat value={`${VEHICLES.length}`} label="Cars listed" />
+            <Stat value={`${sellerCount}+`} label="Private sellers" />
+            <Stat value={formatCurrency(totalValue)} label="In listings" />
+          </div>
         </SiteContainer>
       </section>
 
@@ -143,29 +147,10 @@ export default function HomePage() {
         </SiteContainer>
       </section>
 
-      {/* Why private */}
-      <section className="border-t bg-muted/40 py-16">
+      {/* Budget matcher */}
+      <section className="border-t bg-muted/40 py-14">
         <SiteContainer>
-          <h2 className="text-2xl font-semibold tracking-tight">Why buy privately?</h2>
-          <p className="mt-2 max-w-lg text-sm leading-[1.5] text-muted-foreground">
-            A private sale can save you tens of thousands — if you can trust the seller and
-            the price. That&apos;s the part we fixed.
-          </p>
-          <div className="mt-10 grid gap-8 sm:grid-cols-3">
-            {TRUST.map((t) => (
-              <div key={t.title} className="flex flex-col gap-3">
-                <t.icon className="h-6 w-6" strokeWidth={1.5} />
-                <h3 className="text-sm font-semibold">{t.title}</h3>
-                <p className="text-sm leading-[1.5] text-muted-foreground">{t.body}</p>
-              </div>
-            ))}
-          </div>
-
-          <div className="mt-10 flex flex-wrap gap-x-10 gap-y-4 border-t pt-8">
-            <Stat value={`${VEHICLES.length}`} label="Cars listed" />
-            <Stat value={`${sellerCount}+`} label="Private sellers" />
-            <Stat value={formatCurrency(totalValue)} label="In listings" />
-          </div>
+          <BudgetMatcher />
         </SiteContainer>
       </section>
 
