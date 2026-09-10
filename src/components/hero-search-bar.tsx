@@ -40,7 +40,7 @@ export function HeroSearchBar() {
         type="button"
         onClick={handleSearch}
         aria-label="Search"
-        className="ml-2 flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground transition-colors hover:bg-[#e00b41]"
+        className="ml-2 flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground transition-colors hover:bg-primary/90"
       >
         <Search className="h-4 w-4" strokeWidth={2.5} />
       </button>

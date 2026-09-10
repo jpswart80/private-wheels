@@ -18,7 +18,7 @@ All colour flows through CSS custom properties in
 | `--muted-foreground` | `#6a6a6a` | secondary text, meta |
 | `--muted` / `--secondary` / `--accent` | `#f7f7f7` | subtle fills, footer, CTA bands |
 | `--border` / `--input` | `#ebebeb` | hairlines, dividers, field borders |
-| `--primary` | `#ff385c` | accent — search button, price highlights, active pills. Hover `#e00b41`. |
+| `--primary` | `#d90429` | accent — search button, price highlights, active pills. Hover: `bg-primary/90`. |
 | `--ring` | `#222222` | focus ring |
 | `--navy` (legacy name) | `#222222` | retained token that now resolves to charcoal — the few deliberately dark bits (wizard step indicator) |
 | `--destructive` | red | form errors only |
