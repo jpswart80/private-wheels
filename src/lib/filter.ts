@@ -9,6 +9,8 @@ export const EMPTY_FILTERS: FilterState = {
   priceMax: "",
   yearMin: "",
   yearMax: "",
+  mileageMin: "",
+  mileageMax: "",
   province: "",
   condition: "",
   transmission: "",
@@ -16,6 +18,14 @@ export const EMPTY_FILTERS: FilterState = {
   bodyType: "",
   sort: "newest",
 };
+
+/** Parse a comma-separated multi-select filter value (fuel type, body type). */
+export function parseMultiValue(value: string | undefined): string[] {
+  return (value ?? "")
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
+}
 
 export function applyFilters(vehicles: Vehicle[], filters: Partial<FilterState>): Vehicle[] {
   const selections = filters.mm ? parseMakeSelections(filters.mm) : [];
@@ -35,8 +45,12 @@ export function applyFilters(vehicles: Vehicle[], filters: Partial<FilterState>)
     if (filters.province && v.province !== filters.province) return false;
     if (filters.condition && v.condition !== filters.condition) return false;
     if (filters.transmission && v.transmission !== filters.transmission) return false;
-    if (filters.fuelType && v.fuelType !== filters.fuelType) return false;
-    if (filters.bodyType && v.bodyType !== filters.bodyType) return false;
+
+    const fuels = parseMultiValue(filters.fuelType);
+    if (fuels.length > 0 && !fuels.includes(v.fuelType)) return false;
+
+    const bodyTypes = parseMultiValue(filters.bodyType);
+    if (bodyTypes.length > 0 && !bodyTypes.includes(v.bodyType)) return false;
 
     const priceMin = filters.priceMin ? Number(filters.priceMin) : undefined;
     const priceMax = filters.priceMax ? Number(filters.priceMax) : undefined;
@@ -48,8 +62,26 @@ export function applyFilters(vehicles: Vehicle[], filters: Partial<FilterState>)
     if (yearMin !== undefined && !Number.isNaN(yearMin) && v.year < yearMin) return false;
     if (yearMax !== undefined && !Number.isNaN(yearMax) && v.year > yearMax) return false;
 
+    const mileageMin = filters.mileageMin ? Number(filters.mileageMin) : undefined;
+    const mileageMax = filters.mileageMax ? Number(filters.mileageMax) : undefined;
+    if (mileageMin !== undefined && !Number.isNaN(mileageMin) && v.mileage < mileageMin) return false;
+    if (mileageMax !== undefined && !Number.isNaN(mileageMax) && v.mileage > mileageMax) return false;
+
     return true;
   });
+}
+
+/**
+ * How many vehicles match the current filters with one or more dimensions
+ * overridden — powers the live counts shown next to each PLP filter option
+ * (e.g. "Automatic 12"). Pass `{ make: "" }` for an "All" option.
+ */
+export function countMatching(
+  vehicles: Vehicle[],
+  filters: Partial<FilterState>,
+  override: Partial<FilterState>,
+): number {
+  return applyFilters(vehicles, { ...filters, ...override }).length;
 }
 
 export function sortVehicles(vehicles: Vehicle[], sort: string | undefined): Vehicle[] {
@@ -74,10 +106,15 @@ export function sortVehicles(vehicles: Vehicle[], sort: string | undefined): Veh
 }
 
 export function countActiveFilters(filters: Partial<FilterState>): number {
-  const { sort: _sort, mm, ...rest } = filters;
+  const { sort: _sort, mm, fuelType, bodyType, ...rest } = filters;
   void _sort;
   const base = Object.values(rest).filter((v) => v && v.length > 0).length;
-  return base + (mm ? parseMakeSelections(mm).length : 0);
+  return (
+    base +
+    parseMultiValue(fuelType).length +
+    parseMultiValue(bodyType).length +
+    (mm ? parseMakeSelections(mm).length : 0)
+  );
 }
 
 export type PriceRating = "great" | "fair" | null;

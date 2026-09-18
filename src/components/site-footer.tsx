@@ -1,6 +1,7 @@
 import Link from "next/link";
-import { Car, Globe, Mail, Share2 } from "lucide-react";
+import { Globe, Mail, Share2 } from "lucide-react";
 import { SiteContainer } from "@/components/site-container";
+import { BrandLogo } from "@/components/brand-mark";
 
 const FOOTER_COLUMNS = [
   {
@@ -33,9 +34,8 @@ export function SiteFooter() {
     <footer className="border-t bg-muted">
       <SiteContainer className="grid grid-cols-1 gap-10 py-12 sm:grid-cols-3">
         <div className="sm:col-span-3">
-          <Link href="/" className="flex items-center gap-2">
-            <Car className="h-6 w-6 text-primary" strokeWidth={2} />
-            <span className="font-semibold text-primary">privatewheels</span>
+          <Link href="/" className="flex items-center">
+            <BrandLogo className="h-5 w-auto text-primary" />
           </Link>
           <p className="mt-3 max-w-xs text-sm text-muted-foreground">
             South Africa&apos;s trusted private vehicle marketplace. Buy and sell with

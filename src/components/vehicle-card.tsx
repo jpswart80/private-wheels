@@ -1,11 +1,10 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { Fuel, Gauge, MapPin, Settings2 } from "lucide-react";
 import type { Vehicle } from "@/lib/types";
 import { formatCurrency, formatMileage } from "@/lib/format";
-import { VehiclePlaceholder } from "@/components/vehicle-placeholder";
+import { VehicleMedia } from "@/components/vehicle-media";
 import { cn } from "@/lib/utils";
 
 /**
@@ -36,17 +35,11 @@ export function VehicleCard({
       className={cn("group block w-full min-w-[260px]", className)}
     >
       <div className="relative aspect-[4/3] overflow-hidden rounded-xl">
-        {vehicle.images[0] ? (
-          <Image
-            src={vehicle.images[0]}
-            alt={`${vehicle.year} ${vehicle.make} ${vehicle.model}`}
-            fill
-            sizes="(min-width: 1024px) 280px, 90vw"
-            className="object-cover"
-          />
-        ) : (
-          <VehiclePlaceholder seed={vehicle.id} />
-        )}
+        <VehicleMedia
+          vehicle={vehicle}
+          sizes="(min-width: 1024px) 280px, 90vw"
+          className="object-cover transition-transform duration-500 ease-out group-hover:scale-[1.04] motion-reduce:transition-none motion-reduce:group-hover:scale-100"
+        />
 
         {/* Badge stack */}
         <div className="absolute top-3 left-3 flex flex-col items-start gap-1.5">
@@ -72,7 +65,7 @@ export function VehicleCard({
       <div className="mt-3">
         {/* Year + title */}
         <p className="text-xs font-medium text-muted-foreground">{vehicle.year}</p>
-        <h3 className="mt-0.5 line-clamp-2 text-sm font-medium tracking-tight">
+        <h3 className="mt-0.5 truncate text-sm font-medium tracking-tight">
           {vehicle.make} {vehicle.model} {vehicle.variant}
         </h3>
 

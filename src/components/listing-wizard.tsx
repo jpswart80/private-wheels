@@ -41,8 +41,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { SiteContainer } from "@/components/site-container";
+import { ListingPreviewCard } from "@/components/listing-preview-card";
 
-interface FormState {
+export interface FormState {
   make: string;
   model: string;
   variant: string;
@@ -186,7 +188,7 @@ export function ListingWizard({
   }
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6 lg:px-8">
+    <SiteContainer className="py-10">
       {showWelcome && (
         <div className="mb-8 flex items-start gap-3 rounded-xl border border-primary/30 bg-primary/5 p-4">
           <Sparkles className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
@@ -207,7 +209,10 @@ export function ListingWizard({
       {/* Step indicator */}
       <div className="mt-6 flex items-center gap-2">
         {STEPS.map((label, i) => (
-          <div key={label} className="flex flex-1 items-center gap-2">
+          <div
+            key={label}
+            className={`flex items-center gap-2 ${i < STEPS.length - 1 ? "flex-1" : "flex-none"}`}
+          >
             <div
               className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-bold ${
                 i < step
@@ -225,7 +230,9 @@ export function ListingWizard({
       </div>
       <p className="mt-2 text-sm font-semibold text-muted-foreground">{STEPS[step]}</p>
 
-      <div className="mt-6 rounded-2xl border bg-card p-6">
+      <div className="mt-6 grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_320px]">
+      <div>
+      <div className="rounded-2xl border bg-card p-6">
         {step === 0 && (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="flex flex-col gap-1.5">
@@ -526,7 +533,13 @@ export function ListingWizard({
           </Button>
         )}
       </div>
-    </div>
+      </div>
+
+      <div className="lg:sticky lg:top-24">
+        <ListingPreviewCard form={form} />
+      </div>
+      </div>
+    </SiteContainer>
   );
 }
 

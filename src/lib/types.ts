@@ -89,9 +89,12 @@ export interface FilterState {
   priceMax: string;
   yearMin: string;
   yearMax: string;
+  mileageMin: string;
+  mileageMax: string;
   province: string;
   condition: string;
   transmission: string;
+  /** Comma-separated list of fuel types — the PLP fuel filter is multi-select. */
   fuelType: string;
   bodyType: string;
   sort: string;

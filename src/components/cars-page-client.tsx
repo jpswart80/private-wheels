@@ -1,9 +1,11 @@
 "use client";
 
+import { useEffect } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { SlidersHorizontal } from "lucide-react";
 import { useListings } from "@/hooks/use-listings";
 import { applyFilters, getPriceRating, sortVehicles } from "@/lib/filter";
+import { parseMakeSelections } from "@/lib/make-model";
 import type { FilterState } from "@/lib/types";
 import { SORT_OPTIONS } from "@/lib/data/constants";
 import { VehicleListCard } from "@/components/vehicle-list-card";
@@ -16,7 +18,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 
 export function CarsPageClient() {
   const searchParams = useSearchParams();
@@ -32,6 +34,8 @@ export function CarsPageClient() {
     priceMax: searchParams.get("priceMax") ?? "",
     yearMin: searchParams.get("yearMin") ?? "",
     yearMax: searchParams.get("yearMax") ?? "",
+    mileageMin: searchParams.get("mileageMin") ?? "",
+    mileageMax: searchParams.get("mileageMax") ?? "",
     province: searchParams.get("province") ?? "",
     condition: searchParams.get("condition") ?? "",
     transmission: searchParams.get("transmission") ?? "",
@@ -39,6 +43,28 @@ export function CarsPageClient() {
     bodyType: searchParams.get("bodyType") ?? "",
     sort: searchParams.get("sort") ?? "newest",
   };
+
+  // A search from the landing hero arrives as a serialized `mm` param. Unpack
+  // it into the plain `make` / `model` params the sidebar controls read, so the
+  // search is reflected as selected filters (whether or not it returns results).
+  // Multi-make searches can't map to the single-select controls, so those keep
+  // riding in `mm`.
+  useEffect(() => {
+    const mm = searchParams.get("mm");
+    if (!mm) return;
+    const selections = parseMakeSelections(mm);
+    if (selections.length !== 1) return;
+
+    const { make, models } = selections[0];
+    const oneOrNoModel = models.length <= 1;
+    if (searchParams.get("make") === make && !oneOrNoModel) return;
+
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("make", make);
+    if (models.length === 1) params.set("model", models[0]);
+    if (oneOrNoModel) params.delete("mm");
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+  }, [searchParams, pathname, router]);
 
   const filtered = applyFilters(listings, filters);
   const sorted = sortVehicles(filtered, filters.sort);
@@ -73,12 +99,13 @@ export function CarsPageClient() {
                     </Button>
                   }
                 />
-                <SheetContent side="right" className="w-80 overflow-y-auto p-5">
-                  <SheetHeader className="px-0">
-                    <SheetTitle>Filter Results</SheetTitle>
-                  </SheetHeader>
-                  <div className="mt-4">
-                    <PlpFilterSidebar />
+                <SheetContent
+                  side="bottom"
+                  className="max-h-[85vh] overflow-y-auto rounded-t-2xl p-5"
+                >
+                  <SheetTitle className="sr-only">Filter Results</SheetTitle>
+                  <div className="pb-[env(safe-area-inset-bottom)]">
+                    <PlpFilterSidebar listings={listings} />
                   </div>
                 </SheetContent>
               </Sheet>
@@ -126,8 +153,8 @@ export function CarsPageClient() {
 
           {/* Filters — right rail */}
           <aside className="hidden lg:block">
-            <div className="sticky top-24 rounded-2xl border bg-card p-5">
-              <PlpFilterSidebar />
+            <div className="sticky top-24 max-h-[calc(100vh-8rem)] overflow-y-auto rounded-2xl border bg-card p-5">
+              <PlpFilterSidebar listings={listings} />
             </div>
           </aside>
         </div>
