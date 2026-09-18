@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { PREVIEW_COOKIE_NAME, PREVIEW_COOKIE_OPTIONS } from "@/lib/preview-access";
 
 /**
  * Pre-launch gate.
@@ -12,12 +13,15 @@ import type { NextRequest } from "next/server";
  *   SITE_LAUNCHED=true        → gate off, the whole site is open
  *   (unset / anything else)   → gated (the safe default)
  *
- * Team preview while gated: open any URL once with `?preview=<PREVIEW_TOKEN>`.
- * That sets a cookie so you (and only you) can browse the real site.
+ * Two ways to preview while gated (both need PREVIEW_TOKEN set):
+ *   - /preview — a friendly 4-digit PIN page for demos/presentations.
+ *   - opening any URL once with `?preview=<PREVIEW_TOKEN>`.
+ * Either sets a cookie so you (and only you) can browse the real site for a
+ * week.
  */
 
 const COMING_SOON_PATH = "/coming-soon";
-const PREVIEW_COOKIE = "pw-preview";
+const PREVIEW_PATH = "/preview";
 
 export function proxy(request: NextRequest) {
   if (process.env.SITE_LAUNCHED === "true") {
@@ -27,25 +31,20 @@ export function proxy(request: NextRequest) {
   const { pathname, searchParams } = request.nextUrl;
   const token = process.env.PREVIEW_TOKEN;
 
-  // The holding page itself is always allowed.
-  if (pathname === COMING_SOON_PATH) {
+  // The holding page and the PIN-entry page are always allowed.
+  if (pathname === COMING_SOON_PATH || pathname === PREVIEW_PATH) {
     return NextResponse.next();
   }
 
   // `?preview=<token>` unlocks the real site and remembers it for a week.
   if (token && searchParams.get("preview") === token) {
     const res = NextResponse.next();
-    res.cookies.set(PREVIEW_COOKIE, token, {
-      httpOnly: true,
-      sameSite: "lax",
-      path: "/",
-      maxAge: 60 * 60 * 24 * 7,
-    });
+    res.cookies.set(PREVIEW_COOKIE_NAME, token, PREVIEW_COOKIE_OPTIONS);
     return res;
   }
 
   // Someone who already unlocked preview sees the real site.
-  if (token && request.cookies.get(PREVIEW_COOKIE)?.value === token) {
+  if (token && request.cookies.get(PREVIEW_COOKIE_NAME)?.value === token) {
     return NextResponse.next();
   }
 
