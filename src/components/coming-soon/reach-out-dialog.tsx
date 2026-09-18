@@ -80,9 +80,9 @@ export function ReachOutDialog() {
         {status === "done" ? (
           <div className="flex flex-col gap-4">
             <DialogHeader>
-              <DialogTitle>Thanks — we&apos;ve got your details</DialogTitle>
+              <DialogTitle>Thanks for signing up!</DialogTitle>
               <DialogDescription>
-                We&apos;ll be in touch on {mobile.trim()} when listings open.
+                We&apos;ll reach out with your voucher soon.
               </DialogDescription>
             </DialogHeader>
             <DialogClose
