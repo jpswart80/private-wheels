@@ -1,4 +1,4 @@
-import { Car } from "lucide-react";
+import { BrandIcon } from "@/components/brand-mark";
 import { cn } from "@/lib/utils";
 
 const GRADIENTS = [
@@ -37,9 +37,11 @@ export function VehiclePlaceholder({
         className,
       )}
     >
-      <Car
-        className={cn("text-black/10", compact ? "h-1/2 w-1/2" : "h-1/3 w-1/3 min-h-10 min-w-10")}
-        strokeWidth={1.25}
+      <BrandIcon
+        className={cn(
+          "text-[#c7c7c7]",
+          compact ? "h-1/2 w-1/2" : "h-1/3 w-1/3 min-h-10 min-w-10",
+        )}
       />
     </div>
   );

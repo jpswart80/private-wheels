@@ -2,8 +2,9 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Car, LayoutDashboard, LogOut, Menu } from "lucide-react";
+import { LayoutDashboard, LogOut, Menu } from "lucide-react";
 import { useAuth } from "@/context/auth-context";
+import { BrandLogo } from "@/components/brand-mark";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -28,9 +29,8 @@ export function SiteHeader() {
   return (
     <header className="sticky top-0 z-40 border-b bg-card/95 backdrop-blur">
       <SiteContainer className="flex h-20 items-center justify-between">
-      <Link href="/" className="flex items-center gap-2">
-        <Car className="h-7 w-7 text-primary" strokeWidth={2} />
-        <span className="text-lg font-semibold text-primary">privatewheels</span>
+      <Link href="/" className="flex items-center">
+        <BrandLogo className="h-7 w-auto text-primary" />
       </Link>
 
       <nav className="hidden items-center gap-10 md:flex">
@@ -102,9 +102,8 @@ export function SiteHeader() {
         />
         <SheetContent side="right" className="w-72">
           <SheetHeader>
-            <SheetTitle className="flex items-center gap-2 text-left">
-              <Car className="h-6 w-6 text-primary" strokeWidth={2} />
-              <span className="font-semibold text-primary">privatewheels</span>
+            <SheetTitle className="flex items-center text-left">
+              <BrandLogo className="h-5 w-auto text-primary" />
             </SheetTitle>
           </SheetHeader>
           <nav className="flex flex-col gap-1 px-4">
