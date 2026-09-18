@@ -1,12 +1,11 @@
 import type { ReactNode } from "react";
-import { BrandIcon } from "@/components/brand-mark";
 
 /**
  * Full-bleed shell for the pre-launch holding page. It sits `fixed inset-0` so
  * it covers the site header/footer that the root layout renders around it.
  *
  * No nav bar: the "Private wheels ・ Coming soon" lockup sits inside the centred
- * column as a quiet brand anchor.
+ * column as a quiet brand anchor. Plain text — deliberately not the logo.
  */
 export function ComingSoonFrame({ children }: { children: ReactNode }) {
   return (
@@ -20,7 +19,6 @@ export function ComingSoonFrame({ children }: { children: ReactNode }) {
 
       <main className="relative flex flex-1 flex-col items-center justify-center px-6 py-16">
         <p className="mb-6 flex items-center gap-2 text-sm font-medium text-primary">
-          <BrandIcon className="h-4 w-4" />
           <span>Private wheels</span>
           <span aria-hidden="true">・</span>
           <span>Coming soon</span>
