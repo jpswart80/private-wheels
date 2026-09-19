@@ -94,7 +94,7 @@ async function forwardToWebhook(lead: Lead) {
  *   LEAD_EMAIL_FROM  optional sender; defaults to Resend's shared test address,
  *                    which works immediately. For production use an address on
  *                    a domain you've verified in Resend
- *                    (e.g. "Private Wheels <leads@privatewheels.co.za>").
+ *                    (e.g. "Private Wheels <leads@private-wheels.co.za>").
  */
 async function emailLead(lead: Lead) {
   const apiKey = process.env.RESEND_API_KEY;
