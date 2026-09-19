@@ -21,7 +21,7 @@ export const COMING_SOON = {
     "Hi Private Wheels,\n\nI want to sell my car privately when you launch. Please send me the voucher.",
 
   /** Fallback for people who won't open WhatsApp for a brand they don't know. */
-  contactEmail: "hello@privatewheels.co.za",
+  contactEmail: "hello@private-wheels.co.za",
 
   launchCity: "Cape Town",
 } as const;
